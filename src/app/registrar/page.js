@@ -8,6 +8,7 @@ export default function RegistrarProducto() {
     descripcion: '',
     foto: '',
     stock: '',
+    imagenBase64: '', 
   });
 
   const [pdfVisible, setPdfVisible] = useState(false);
@@ -15,6 +16,19 @@ export default function RegistrarProducto() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setForm((prevForm) => ({ ...prevForm, imagenBase64: reader.result }));
+    };
+
+    if (file) {
+      reader.readAsDataURL(file); // 👈 convierte a base64
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -29,8 +43,8 @@ export default function RegistrarProducto() {
     if (res.ok) {
       alert('Producto registrado exitosamente');
 
-      setPdfNombre(form.nombre);     
-      setPdfVisible(true);           
+      setPdfNombre(form.nombre);
+      setPdfVisible(true);
 
       setForm({
         nombre: '',
@@ -38,6 +52,7 @@ export default function RegistrarProducto() {
         descripcion: '',
         foto: '',
         stock: '',
+        imagenBase64: '',
       });
     } else {
       const error = await res.json();
@@ -72,18 +87,17 @@ export default function RegistrarProducto() {
           required
         />
         <input
-          name="foto"
-          placeholder="URL de la foto"
-          value={form.foto}
-          onChange={handleChange}
-          required
-        />
-        <input
           name="stock"
           type="number"
           placeholder="Cantidad en stock"
           value={form.stock}
           onChange={handleChange}
+          required
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFile}
           required
         />
         <button type="submit">Guardar producto</button>
