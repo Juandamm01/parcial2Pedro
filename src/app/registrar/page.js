@@ -27,7 +27,7 @@ export default function RegistrarProducto() {
     };
 
     if (file) {
-      reader.readAsDataURL(file); // 👈 convierte a base64
+      reader.readAsDataURL(file);
     }
   };
 
