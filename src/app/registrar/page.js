@@ -10,12 +10,16 @@ export default function RegistrarProducto() {
     stock: '',
   });
 
+  const [pdfVisible, setPdfVisible] = useState(false);
+  const [pdfNombre, setPdfNombre] = useState('');
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const res = await fetch('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -24,6 +28,10 @@ export default function RegistrarProducto() {
 
     if (res.ok) {
       alert('Producto registrado exitosamente');
+
+      setPdfNombre(form.nombre);     
+      setPdfVisible(true);           
+
       setForm({
         nombre: '',
         precio: '',
@@ -80,6 +88,25 @@ export default function RegistrarProducto() {
         />
         <button type="submit">Guardar producto</button>
       </form>
+
+      {pdfVisible && (
+        <a
+          href={`/${pdfNombre}.pdf`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-block',
+            marginTop: '20px',
+            padding: '10px 20px',
+            backgroundColor: '#0070f3',
+            color: '#fff',
+            borderRadius: '5px',
+            textDecoration: 'none',
+          }}
+        >
+          📄 Ver PDF generado
+        </a>
+      )}
     </div>
   );
 }
