@@ -21,16 +21,40 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', paddingTop: '50px' }}>
-      <h2>Iniciar Sesión JUDAGE</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="usuario" placeholder="Usuario" value={form.usuario} onChange={handleChange} required />
-        <input name="contraseña" type="password" placeholder="Contraseña" value={form.contraseña} onChange={handleChange} required />
-        <button type="submit">Ingresar</button>
-      </form>
-      <p style={{ marginTop: '10px' }}>
-        <a href="/recuperar">¿Olvidaste tu contraseña?</a>
-      </p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-200 via-white to-indigo-100">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
+        <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">Iniciar Sesión JUDAGE</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            name="usuario"
+            placeholder="Usuario"
+            value={form.usuario}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
+          />
+          <input
+            name="contraseña"
+            type="password"
+            placeholder="Contraseña"
+            value={form.contraseña}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
+          />
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all"
+          >
+            Ingresar
+          </button>
+        </form>
+        <p className="text-center mt-4">
+          <a href="/recuperar" className="text-indigo-500 hover:underline">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
