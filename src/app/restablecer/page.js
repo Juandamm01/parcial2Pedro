@@ -22,7 +22,7 @@ export default function Restablecer() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6 text-black">
       <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-8">
         <h2 className="text-3xl font-bold text-center mb-6 text-indigo-700">
           Restablecer contraseña

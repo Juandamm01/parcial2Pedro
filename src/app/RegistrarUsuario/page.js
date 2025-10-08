@@ -26,7 +26,7 @@ export default function RegistroUsuario() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-400 via-purple-400 to-indigo-600">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-400 via-purple-400 to-indigo-600 text-black">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">Registro de Usuario</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
