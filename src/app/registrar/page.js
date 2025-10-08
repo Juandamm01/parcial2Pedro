@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import Image from 'next/image';
-import { ArrowLeft, Edit, Trash2, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, PlusCircle, FileDown } from 'lucide-react';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -72,6 +72,27 @@ export default function RegistrarProducto() {
     setViewing(null);
   };
 
+  // Descargar PDF
+  const handleDownloadPDF = async () => {
+    try {
+      const res = await fetch('/api/pdf'); // Llama al endpoint que genera el PDF
+      if (!res.ok) return alert('Error al generar el PDF.');
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'inventario.pdf';
+      a.click();
+
+      window.URL.revokeObjectURL(url); // Liberar memoria
+    } catch (err) {
+      console.error(err);
+      alert('Error al generar o descargar el PDF.');
+    }
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -91,6 +112,16 @@ export default function RegistrarProducto() {
           <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
             {editing ? 'Actualizar Producto' : 'Registrar Producto'}
           </h1>
+
+          {/* Botón de PDF */}
+          <div className="flex justify-end w-full max-w-5xl mb-6">
+            <button
+              onClick={handleDownloadPDF}
+              className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow transition"
+            >
+              <FileDown className="mr-2" /> Descargar Inventario (PDF)
+            </button>
+          </div>
 
           {/* Formulario */}
           <form
