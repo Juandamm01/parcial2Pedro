@@ -42,10 +42,16 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   // Validaciones antes de enviar
-  if (!form.nombre.trim()) {
-    alert('El nombre del producto es obligatorio');
-    return;
-  }
+if (!form.nombre.trim()) {
+  alert('El nombre del producto es obligatorio');
+  return;
+}
+
+if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(form.nombre.trim())) {
+  alert('El nombre no puede contener números ni caracteres especiales');
+  return;
+}
+
   if (!form.precio || isNaN(form.precio) || Number(form.precio) <= 0) {
     alert('Debe ingresar un precio válido mayor que 0');
     return;
@@ -144,8 +150,28 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div className="p-6 flex flex-col items-center w-full min-h-screen bg-gray-50">
-      {!viewing ? (
+  <div className="p-6 flex flex-col items-center w-full min-h-screen bg-gray-50">
+    <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', marginBottom: '20px' }}>
+      <button 
+        onClick={() => window.location.href = '/login'} 
+        style={{
+          backgroundColor: '#e63946',
+          color: 'white',
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          transition: 'background-color 0.3s ease'
+        }}
+        onMouseOver={e => e.target.style.backgroundColor = '#b71c1c'}
+        onMouseOut={e => e.target.style.backgroundColor = '#e63946'}
+      >
+        Salir
+      </button>
+    </div>
+
+    {!viewing ? (
         <>
           <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
             {editing ? 'Actualizar Producto' : 'Registrar Producto'}
