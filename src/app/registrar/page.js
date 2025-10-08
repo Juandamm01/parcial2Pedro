@@ -1,5 +1,5 @@
 'use client';
-
+import { useRouter } from 'next/navigation'; 
 import { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import Image from 'next/image';
@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 export default function RegistrarProducto() {
+  const router = useRouter();
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
     nombre: '',
@@ -37,26 +38,49 @@ export default function RegistrarProducto() {
     reader.readAsDataURL(file);
   };
 
-  // Crear o actualizar producto
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const method = editing ? 'PUT' : 'POST';
-    await fetch('/api/products', {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    setForm({
-      nombre: '',
-      precio: '',
-      descripcion: '',
-      stock: '',
-      imagenBase64: '',
-    });
-    setEditing(null);
-    const updated = await fetch('/api/products').then(res => res.json());
-    setProducts(updated);
-  };
+  e.preventDefault();
+
+  const nombreValido = form.nombre.trim() !== '' && /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(form.nombre);
+const precioValido = form.precio !== '' && !isNaN(form.precio) && Number(form.precio) >= 0;
+const stockValido = form.stock !== '' && !isNaN(form.stock) && Number(form.stock) >= 0;
+const descripcionValida = form.descripcion.trim() !== '';
+const imagenValida = form.imagenBase64 && form.imagenBase64.startsWith('data:image');
+
+if (!nombreValido) {
+  return alert('El nombre no puede estar vacío, tener solo espacios ni contener números.');
+}
+if (!precioValido) {
+  return alert('El precio debe ser un número válido y no puede ser negativo.');
+}
+if (!stockValido) {
+  return alert('El stock debe ser un número válido y no puede ser negativo.');
+}
+if (!descripcionValida) {
+  return alert('La descripción no puede estar vacía.');
+}
+if (!imagenValida) {
+  return alert('Debes subir una imagen válida del producto.');
+}
+
+  const method = editing ? 'PUT' : 'POST';
+  await fetch('/api/products', {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(form),
+  });
+
+  setForm({
+    nombre: '',
+    precio: '',
+    descripcion: '',
+    stock: '',
+    imagenBase64: '',
+  });
+  setEditing(null);
+  const updated = await fetch('/api/products').then(res => res.json());
+  setProducts(updated);
+};
 
   // Eliminar producto
   const handleDelete = async (id) => {
@@ -106,8 +130,19 @@ export default function RegistrarProducto() {
   };
 
   return (
-    <div className="p-6 flex flex-col items-center w-full min-h-screen bg-gray-50">
-      {!viewing ? (
+  <div className="p-6 flex flex-col items-center w-full min-h-screen bg-gray-50">
+
+    {/* Botón Salir siempre visible */}
+    <div className="w-full max-w-5xl flex justify-end mb-4">
+      <button
+        onClick={() => router.push('/login')}
+        className="flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition"
+      >
+        Salir
+      </button>
+    </div>
+
+    {!viewing ? (
         <>
           <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
             {editing ? 'Actualizar Producto' : 'Registrar Producto'}
@@ -265,6 +300,12 @@ export default function RegistrarProducto() {
               className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
             >
               <Trash2 className="mr-2" /> Eliminar
+            </button>
+
+            <button
+              onClick={() => router.push('/registrar')}
+              className="flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition"
+            >Salir
             </button>
           </div>
         </div>
