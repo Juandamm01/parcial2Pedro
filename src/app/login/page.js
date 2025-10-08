@@ -24,7 +24,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-200 via-white to-indigo-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center mb-6 text-indigo-700">Iniciar Sesión JUDAGE</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 text-black">
           <input
             name="usuario"
             placeholder="Usuario"

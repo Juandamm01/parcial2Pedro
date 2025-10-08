@@ -126,7 +126,7 @@ export default function RegistrarProducto() {
           {/* Formulario */}
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-md bg-white p-6 rounded-2xl shadow-md mb-8 space-y-4"
+            className="w-full max-w-md bg-white p-6 rounded-2xl shadow-md mb-8 space-y-4 text-black"
           >
             <input
               type="text"
