@@ -12,6 +12,31 @@ export default function RegistroUsuario() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    
+    if (!form.usuario.trim()) {
+      alert('El nombre de usuario es obligatorio');
+      return;
+    }
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(form.usuario.trim())) {
+      alert('El nombre de usuario no puede contener números ni caracteres especiales');
+      return;
+    }
+
+  
+    const emailRegex = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(form.email.trim())) {
+      alert('Ingresa un correo electrónico válido que no comience con un número');
+      return;
+    }
+
+  
+    if (form.contraseña.length < 5) {
+      alert('La contraseña debe tener al menos 5 caracteres');
+      return;
+    }
+
+    
     const res = await fetch('/api/RegistrarUsuario', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
