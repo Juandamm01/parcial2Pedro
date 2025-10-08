@@ -38,14 +38,44 @@ export default function RegistrarProducto() {
   };
 
   // Crear o actualizar producto
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Validaciones antes de enviar
+  if (!form.nombre.trim()) {
+    alert('El nombre del producto es obligatorio');
+    return;
+  }
+  if (!form.precio || isNaN(form.precio) || Number(form.precio) <= 0) {
+    alert('Debe ingresar un precio válido mayor que 0');
+    return;
+  }
+  if (!form.descripcion.trim()) {
+    alert('La descripción no puede estar vacía');
+    return;
+  }
+  if (!form.stock || isNaN(form.stock) || Number(form.stock) < 0) {
+    alert('El stock debe ser un número igual o mayor que 0');
+    return;
+  }
+  if (!form.imagenBase64) {
+    alert('Debe seleccionar una imagen válida');
+    return;
+  }
+
+  try {
     const method = editing ? 'PUT' : 'POST';
-    await fetch('/api/products', {
+    const res = await fetch('/api/products', {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
+
+    if (!res.ok) {
+      throw new Error('Error al guardar el producto');
+    }
+
+    // Limpiar formulario
     setForm({
       nombre: '',
       precio: '',
@@ -54,9 +84,17 @@ export default function RegistrarProducto() {
       imagenBase64: '',
     });
     setEditing(null);
+
+    // Actualizar lista sin recargar
     const updated = await fetch('/api/products').then(res => res.json());
     setProducts(updated);
-  };
+
+  } catch (error) {
+    console.error(error);
+    alert('Hubo un problema al registrar el producto');
+  }
+};
+
 
   // Eliminar producto
   const handleDelete = async (id) => {
