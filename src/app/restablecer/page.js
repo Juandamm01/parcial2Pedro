@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Restablecer() {
   const params = useSearchParams();
@@ -8,6 +9,7 @@ export default function Restablecer() {
   const token = params.get('token');
 
   const [contraseña, setContraseña] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,18 +31,24 @@ export default function Restablecer() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nueva contraseña
             </label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={contraseña}
               onChange={(e) => setContraseña(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none pr-10"
             />
+            <span
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </span>
           </div>
 
           <button

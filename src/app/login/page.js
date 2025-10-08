@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const [form, setForm] = useState({ usuario: '', contraseña: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -33,15 +35,26 @@ export default function Login() {
             required
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
           />
-          <input
-            name="contraseña"
-            type="password"
-            placeholder="Contraseña"
-            value={form.contraseña}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
+
+          {/* Input de contraseña con ojo */}
+          <div className="relative">
+            <input
+              name="contraseña"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Contraseña"
+              value={form.contraseña}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none pr-10"
+            />
+            <span
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </span>
+          </div>
+
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all"
