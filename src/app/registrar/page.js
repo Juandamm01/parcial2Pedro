@@ -1,155 +1,243 @@
 'use client';
-import { useState } from 'react';
+
+import { useEffect, useState } from 'react';
+import Slider from 'react-slick';
+import Image from 'next/image';
+import { ArrowLeft, Edit, Trash2, PlusCircle } from 'lucide-react';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 export default function RegistrarProducto() {
+  const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
     nombre: '',
     precio: '',
     descripcion: '',
-    foto: '',
     stock: '',
     imagenBase64: '',
   });
+  const [editing, setEditing] = useState(null);
+  const [viewing, setViewing] = useState(null);
 
-  const [pdfVisible, setPdfVisible] = useState(false);
-  const [pdfNombre, setPdfNombre] = useState('');
+  // Cargar todos los productos
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(setProducts);
+  }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleFile = (e) => {
+  // Convertir archivo de imagen a Base64
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
     const reader = new FileReader();
-
     reader.onloadend = () => {
-      setForm((prevForm) => ({ ...prevForm, imagenBase64: reader.result }));
+      setForm({ ...form, imagenBase64: reader.result });
     };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    reader.readAsDataURL(file);
   };
 
+  // Crear o actualizar producto
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const res = await fetch('/api/products', {
-      method: 'POST',
+    const method = editing ? 'PUT' : 'POST';
+    await fetch('/api/products', {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
+    setForm({
+      nombre: '',
+      precio: '',
+      descripcion: '',
+      stock: '',
+      imagenBase64: '',
+    });
+    setEditing(null);
+    const updated = await fetch('/api/products').then(res => res.json());
+    setProducts(updated);
+  };
 
-    if (res.ok) {
-      alert('Producto registrado exitosamente');
+  // Eliminar producto
+  const handleDelete = async (id) => {
+    await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
+    setProducts(products.filter(p => p._id !== id));
+    setViewing(null);
+  };
 
-      setPdfNombre(form.nombre);
-      setPdfVisible(true);
+  // Editar producto
+  const handleEdit = (p) => {
+    setEditing(p._id);
+    setForm(p);
+    setViewing(null);
+  };
 
-      setForm({
-        nombre: '',
-        precio: '',
-        descripcion: '',
-        foto: '',
-        stock: '',
-        imagenBase64: '',
-      });
-    } else {
-      const error = await res.json();
-      alert(error.message || 'Error al registrar producto');
-    }
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: Math.min(3, products.length),
+    slidesToScroll: 1,
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 640, settings: { slidesToShow: 1 } },
+    ],
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8">
-        <h2 className="text-3xl font-bold text-center mb-6 text-indigo-700">
-          Registrar Producto
-        </h2>
+    <div className="p-6 flex flex-col items-center w-full min-h-screen bg-gray-50">
+      {!viewing ? (
+        <>
+          <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
+            {editing ? 'Actualizar Producto' : 'Registrar Producto'}
+          </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+          {/* Formulario */}
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-md bg-white p-6 rounded-2xl shadow-md mb-8 space-y-4"
+          >
             <input
-              name="nombre"
+              type="text"
               placeholder="Nombre del producto"
               value={form.nombre}
-              onChange={handleChange}
+              onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+              className="border p-2 rounded w-full focus:ring-2 focus:ring-blue-400"
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
             <input
-              name="precio"
               type="number"
               placeholder="Precio"
               value={form.precio}
-              onChange={handleChange}
+              onChange={(e) => setForm({ ...form, precio: e.target.value })}
+              className="border p-2 rounded w-full focus:ring-2 focus:ring-blue-400"
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-            <textarea
-              name="descripcion"
-              placeholder="Descripción del producto"
-              value={form.descripcion}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 h-24 focus:ring-2 focus:ring-indigo-400 outline-none resize-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Stock disponible</label>
             <input
-              name="stock"
               type="number"
-              placeholder="Cantidad en stock"
+              placeholder="Stock"
               value={form.stock}
-              onChange={handleChange}
+              onChange={(e) => setForm({ ...form, stock: e.target.value })}
+              className="border p-2 rounded w-full focus:ring-2 focus:ring-blue-400"
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
             />
-          </div>
+            <textarea
+              placeholder="Descripción"
+              value={form.descripcion}
+              onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+              className="border p-2 rounded w-full focus:ring-2 focus:ring-blue-400"
+              rows="3"
+            ></textarea>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del producto</label>
             <input
               type="file"
               accept="image/*"
-              onChange={handleFile}
-              required
-              className="w-full text-sm text-gray-600 border border-gray-300 rounded-lg p-2 file:mr-3 file:py-1 file:px-3 file:border-0 file:rounded-md file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200 cursor-pointer"
+              onChange={handleFileChange}
+              className="w-full text-gray-700 border border-gray-300 p-2 rounded-lg cursor-pointer"
+            />
+
+            {/* Vista previa */}
+            {form.imagenBase64 && (
+              <div className="relative w-40 h-40 mx-auto mt-2">
+                <Image
+                  src={form.imagenBase64}
+                  alt={form.nombre ? `Imagen de ${form.nombre}` : 'Imagen subida'}
+                  fill
+                  className="object-cover rounded-xl border"
+                />
+              </div>
+            )}
+
+            <button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold flex items-center justify-center"
+              type="submit"
+            >
+              <PlusCircle className="mr-2" size={20} />
+              {editing ? 'Actualizar Producto' : 'Registrar Producto'}
+            </button>
+          </form>
+
+          {/* Carrusel */}
+          {products.length > 0 ? (
+            <div className="w-full max-w-5xl">
+              <h2 className="text-2xl font-semibold mb-4 text-center text-blue-700">
+                Inventario de Productos
+              </h2>
+              <Slider {...sliderSettings}>
+                {products.map((p) => (
+                  <div key={p._id} className="p-3">
+                    <div
+                      onClick={() => setViewing(p)}
+                      className="bg-white shadow-md rounded-2xl cursor-pointer hover:scale-105 transition-transform flex flex-col items-center justify-center p-4"
+                    >
+                      <div className="relative w-40 h-40 mb-3">
+                        <Image
+                          src={
+                            p.imagenBase64 && p.imagenBase64.startsWith('data:image')
+                              ? p.imagenBase64
+                              : 'https://via.placeholder.com/300x300?text=Sin+Imagen'
+                          }
+                          alt={p.nombre ? `Imagen del producto ${p.nombre}` : 'Producto sin nombre'}
+                          fill
+                          className="object-cover rounded-xl"
+                        />
+                      </div>
+                      <h3 className="text-lg font-semibold text-center">
+                        {p.nombre || 'Sin nombre'}
+                      </h3>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            </div>
+          ) : (
+            <p className="text-gray-500 mt-4">Aún no hay productos registrados.</p>
+          )}
+        </>
+      ) : (
+        // Vista individual del producto
+        <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-md text-center relative">
+          <button
+            onClick={() => setViewing(null)}
+            className="absolute top-4 left-4 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            <ArrowLeft className="mr-1" size={18} /> Volver
+          </button>
+
+          <div className="relative w-48 h-48 mx-auto mb-4 mt-6">
+            <Image
+              src={
+                viewing.imagenBase64 && viewing.imagenBase64.startsWith('data:image')
+                  ? viewing.imagenBase64
+                  : 'https://via.placeholder.com/300x300?text=Sin+Imagen'
+              }
+              alt={viewing.nombre ? `Imagen del producto ${viewing.nombre}` : 'Producto sin nombre'}
+              fill
+              className="object-cover rounded-xl"
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md"
-          >
-            Guardar producto
-          </button>
-        </form>
+          <h2 className="text-2xl font-bold mb-2">{viewing.nombre}</h2>
+          <p className="text-gray-700 mb-2">💲 Precio: ${viewing.precio}</p>
+          <p className="text-gray-700 mb-2">📦 Stock: {viewing.stock}</p>
+          <p className="text-gray-600 mb-6">{viewing.descripcion}</p>
 
-        {pdfVisible && (
-          <div className="text-center mt-6">
-            <a
-              href={`/${pdfNombre}.pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-medium transition-all shadow-md"
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => handleEdit(viewing)}
+              className="flex items-center bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
             >
-              📄 Ver PDF generado
-            </a>
+              <Edit className="mr-2" /> Editar
+            </button>
+            <button
+              onClick={() => handleDelete(viewing._id)}
+              className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+            >
+              <Trash2 className="mr-2" /> Eliminar
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
